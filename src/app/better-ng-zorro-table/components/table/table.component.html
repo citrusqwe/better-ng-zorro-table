@@ -1,0 +1,45 @@
+<a nz-dropdown nzTrigger="click" [nzDropdownMenu]="menu">
+  Change visibility
+  <span nz-icon nzType="down"></span>
+</a>
+<nz-dropdown-menu #menu="nzDropdownMenu">
+  <ul nz-menu>
+    <li nz-menu-item *ngFor="let col of tableColumnManager.allColumns()">
+      <label
+        nz-checkbox
+        [nzChecked]="col.visible"
+        (nzCheckedChange)="
+          tableColumnManager.toggleColumnVisibility(col.name, $event)
+        "
+      >
+        {{ col.label }}
+      </label>
+    </li>
+  </ul>
+</nz-dropdown-menu>
+<nz-table #table [nzData]="list">
+  <thead>
+    <tr>
+      <th
+        *ngFor="let col of tableColumnManager.displayedColumns()"
+        nzWidth="{{ col.width }}px"
+      >
+        {{ col.label }}
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let data of table.data">
+      <app-table-cell-def name="name">
+        {{ data.name }}
+      </app-table-cell-def>
+      <!-- <td>{{ data.name }}</td> -->
+      <td>{{ data.age }}</td>
+      <td>{{ data.address }}</td>
+      <td>
+        <a>AAAACTION 一 {{ data.name }}</a>
+        <a>Delete</a>
+      </td>
+    </tr>
+  </tbody>
+</nz-table>
