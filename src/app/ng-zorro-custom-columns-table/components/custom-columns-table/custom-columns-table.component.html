@@ -1,0 +1,65 @@
+<button nz-button nzType="primary" (click)="showModal()">
+  <span>Change visibility</span>
+</button>
+<nz-modal
+  [(nzVisible)]="isVisible"
+  nzTitle="Change visibility of table columns"
+  (nzOnOk)="handleColumnsChanges()"
+  (nzOnCancel)="handleCancel()"
+>
+  <ng-container *nzModalContent>
+    <ul cdkDropList class="columns-list" (cdkDropListDropped)="drop($event)">
+      @for (column of tableColumnsManager.columnsToDisplayInSettingsFirst();
+      track column.value) {
+      <li class="columns-item required">
+        {{ column.label }}
+      </li>
+      } @for (column of tableColumnsManager.columnsToDisplayInSettings(); track
+      column.value) {
+      <li class="columns-item" cdkDrag>
+        <label
+          nz-checkbox
+          [nzChecked]="column.default"
+          (nzCheckedChange)="
+            tableColumnsManager.toggleColumnVisibility(column.value, $event)
+          "
+        >
+          {{ column.label }}
+        </label>
+      </li>
+      } @for (column of tableColumnsManager.columnsToDisplayInSettingsLast();
+      track column.value) {
+      <li class="columns-item required">
+        {{ column.label }}
+      </li>
+      }
+    </ul>
+  </ng-container>
+</nz-modal>
+<nz-table
+  #basicTable
+  [nzData]="listOfData"
+  [nzCustomColumn]="tableColumnsManager.columnsToDisplay()"
+>
+  <thead>
+    <tr>
+      @for (column of tableColumnsManager.columnsToDisplay(); track
+      column.value) {
+      <th [nzCellControl]="column.value">{{ column.label }}</th>
+      }
+    </tr>
+  </thead>
+  <tbody>
+    @for (data of basicTable.data; track data.id) {
+    <tr>
+      <td nzCellControl="name">{{ data.name }}</td>
+      <td nzCellControl="gender">{{ data.gender }}</td>
+      <td nzCellControl="age">{{ data.age }}</td>
+      <td nzCellControl="address">{{ data.address }}</td>
+      <td nzCellControl="action">
+        <a>Delete</a>
+      </td>
+    </tr>
+    }
+  </tbody>
+</nz-table>
