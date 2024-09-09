@@ -1,15 +1,19 @@
 import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
-import { JsonPipe } from '@angular/common';
+import { ObserversModule } from '@angular/cdk/observers';
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   inject,
   Input,
+  ViewChild,
 } from '@angular/core';
+import { ResizableModule } from 'angular-resizable-element';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
 import { NzModalModule } from 'ng-zorro-antd/modal';
-import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzResizableModule } from 'ng-zorro-antd/resizable';
+import { NzTableComponent, NzTableModule } from 'ng-zorro-antd/table';
 import { TableColumnsManagerService } from '../../services/table-columns-manager/table-columns-manager.service';
 import { TableColumn } from '../../types/columns';
 
@@ -23,16 +27,19 @@ import { TableColumn } from '../../types/columns';
     NzButtonModule,
     CdkDropList,
     CdkDrag,
-    JsonPipe,
+    ResizableModule,
+    ObserversModule,
+    NzResizableModule,
   ],
   providers: [TableColumnsManagerService],
   templateUrl: './custom-columns-table.component.html',
   styleUrl: './custom-columns-table.component.less',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CustomColumnsTableComponent {
+export class CustomColumnsTableComponent implements AfterViewInit {
   tableColumnsManager = inject(TableColumnsManagerService);
   @Input({ required: true }) listOfData!: any[];
+  @ViewChild('table', { static: false }) table!: NzTableComponent<any[]>;
 
   constructor() {
     this.tableColumnsManager.setInitialColumns({
@@ -40,8 +47,8 @@ export class CustomColumnsTableComponent {
         label: 'Name',
         value: 'name',
         default: true,
-        required: true,
-        position: 'left',
+        // required: true,
+        // position: 'left',
         width: 200,
         fixWidth: true,
       },
@@ -74,6 +81,17 @@ export class CustomColumnsTableComponent {
     });
   }
 
+  onTableWidthChanges([record]: MutationRecord[]) {
+    const targetWidth = (record.target as HTMLTableElement).clientWidth;
+    console.log(
+      record,
+      targetWidth,
+      Math.ceil(
+        targetWidth / this.tableColumnsManager.columnsToDisplay().length
+      )
+    );
+  }
+
   // modal
   isVisible: boolean = false;
 
@@ -92,5 +110,9 @@ export class CustomColumnsTableComponent {
 
   handleCancel(): void {
     this.isVisible = false;
+  }
+
+  ngAfterViewInit(): void {
+    console.log(this.table.data);
   }
 }

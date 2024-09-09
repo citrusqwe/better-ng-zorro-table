@@ -52,6 +52,19 @@ export class TableColumnsManagerService {
     }));
   }
 
+  changeColumnWidth(columnName: string, width?: number) {
+    const neededColumn = this.columns()[columnName];
+    const updatedColumn = {
+      ...neededColumn,
+      width: width || neededColumn.width,
+    };
+    console.log(columnName, updatedColumn);
+    this.columns.update((columns) => ({
+      ...columns,
+      [columnName]: updatedColumn,
+    }));
+  }
+
   reorder(prevIndex: number, currIndex: number): void {
     const cols = this.columnsToDisplayInSettings();
     moveItemInArray(cols, prevIndex, currIndex);

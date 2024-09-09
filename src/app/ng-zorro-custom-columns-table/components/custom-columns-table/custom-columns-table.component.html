@@ -36,21 +36,55 @@
     </ul>
   </ng-container>
 </nz-modal>
-<nz-table
-  #basicTable
-  [nzData]="listOfData"
-  [nzCustomColumn]="tableColumnsManager.columnsToDisplay()"
->
+<nz-table #table [nzData]="listOfData">
   <thead>
     <tr>
       @for (column of tableColumnsManager.columnsToDisplay(); track
       column.value) {
-      <th [nzCellControl]="column.value">{{ column.label }}</th>
-      }
+      <!-- <th
+        [nzCellControl]="column.value"
+        [style.width]="column.width + 'px'"
+        nzResizable
+        mwlResizable
+        [enableGhostResize]="true"
+        (resizeEnd)="
+          tableColumnsManager.changeColumnWidth(
+            column.value,
+            $event.rectangle.width
+          )
+        "
+      > -->
+      @if (!column.required) {
+      <th
+        nz-resizable
+        nzBounds="window"
+        nzPreview
+        [nzWidth]="column.width + 'px'"
+        [nzMaxWidth]="600"
+        [nzMinWidth]="60"
+        (nzResizeEnd)="
+          tableColumnsManager.changeColumnWidth(column.value, $event.width)
+        "
+      >
+        <!-- <div
+      class="resize-handle-right"
+      mwlResizeHandle
+      [resizeEdges]="{ right: true }"
+      ></div> -->
+        {{ column.label }}
+        <nz-resize-handle nzDirection="right">
+          <div class="resize-trigger"></div>
+        </nz-resize-handle>
+      </th>
+      }@else {
+      <th [nzCellControl]="column.value">
+        {{ column.label }}
+      </th>
+      } }
     </tr>
   </thead>
   <tbody>
-    @for (data of basicTable.data; track data.id) {
+    @for (data of table.data; track data.id) {
     <tr>
       <td nzCellControl="name">{{ data.name }}</td>
       <td nzCellControl="gender">{{ data.gender }}</td>
