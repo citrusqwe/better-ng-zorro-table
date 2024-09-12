@@ -18,6 +18,7 @@
         nz-resizable
         nzBounds="window"
         nzPreview
+        [nzWidth]="column.width + 'px'"
         [nzMinWidth]="60"
         (nzResizeEnd)="
           tableColumnsManager.changeColumnWidth(column.value, $event.width)
