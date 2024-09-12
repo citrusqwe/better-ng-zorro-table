@@ -1,6 +1,19 @@
 <div class="wrapper">
-  <!-- <app-table [list]="listOfData"></app-table> -->
   <app-custom-columns-table
+    key="mega-table"
     [listOfData]="listOfData"
-  ></app-custom-columns-table>
+    [columns]="tableColumns"
+  >
+    @for (data of listOfData; track data.id) {
+    <tr>
+      <td customTableCellDef="name">{{ data.name }}</td>
+      <td customTableCellDef="gender">{{ data.gender }}</td>
+      <td customTableCellDef="age">{{ data.age }}</td>
+      <td customTableCellDef="address">{{ data.address }}</td>
+      <td>
+        <a>Delete</a>
+      </td>
+    </tr>
+    }
+  </app-custom-columns-table>
 </div>

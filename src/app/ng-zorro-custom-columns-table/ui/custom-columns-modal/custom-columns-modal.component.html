@@ -1,0 +1,35 @@
+<nz-modal
+  [(nzVisible)]="isOpen"
+  nzTitle="Change visibility of table columns"
+  (nzOnOk)="handleColumnsChanges()"
+  (nzOnCancel)="handleCancel()"
+>
+  <ng-container *nzModalContent>
+    <ul cdkDropList class="columns-list" (cdkDropListDropped)="drop($event)">
+      @for (column of tableColumnsManager.columnsToDisplayInSettingsFirst();
+      track column.value) {
+      <li class="columns-item required">
+        {{ column.label }}
+      </li>
+      } @for (column of tableColumnsManager.columnsToDisplayInSettings(); track
+      column.value) {
+      <li class="columns-item" cdkDrag>
+        <label
+          nz-checkbox
+          [nzChecked]="column.default"
+          (nzCheckedChange)="
+            tableColumnsManager.toggleColumnVisibility(column.value, $event)
+          "
+        >
+          {{ column.label }}
+        </label>
+      </li>
+      } @for (column of tableColumnsManager.columnsToDisplayInSettingsLast();
+      track column.value) {
+      <li class="columns-item required">
+        {{ column.label }}
+      </li>
+      }
+    </ul>
+  </ng-container>
+</nz-modal>

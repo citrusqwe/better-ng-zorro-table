@@ -1,0 +1,41 @@
+<button
+  nz-button
+  nzType="primary"
+  (click)="isVisibilityModalOpen = !isVisibilityModalOpen"
+>
+  <span>Change visibility</span>
+</button>
+<app-custom-columns-modal
+  [(isOpen)]="isVisibilityModalOpen"
+></app-custom-columns-modal>
+<nz-table #table [nzData]="listOfData">
+  <thead>
+    <tr>
+      @for (column of tableColumnsManager.columnsToDisplay(); track
+      column.value) { @if (!column.required) {
+      <th
+        [customTableCellDef]="column.value"
+        nz-resizable
+        nzBounds="window"
+        nzPreview
+        [nzMinWidth]="60"
+        (nzResizeEnd)="
+          tableColumnsManager.changeColumnWidth(column.value, $event.width)
+        "
+      >
+        {{ column.label }}
+        <nz-resize-handle nzDirection="right">
+          <div class="resize-trigger"></div>
+        </nz-resize-handle>
+      </th>
+      }@else {
+      <th [nzCellControl]="column.value">
+        {{ column.label }}
+      </th>
+      } }
+    </tr>
+  </thead>
+  <tbody>
+    <ng-content></ng-content>
+  </tbody>
+</nz-table>

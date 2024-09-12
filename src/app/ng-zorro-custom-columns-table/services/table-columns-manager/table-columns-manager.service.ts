@@ -1,13 +1,28 @@
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { computed, Injectable, signal, WritableSignal } from '@angular/core';
 import { TableColumn, TableColumns } from '../../types/columns';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { TableStorageManager } from '../../utils/table-storage';
 
 @Injectable()
 export class TableColumnsManagerService {
+  private allColumns!: WritableSignal<TableColumns>;
   private columns!: WritableSignal<TableColumns>;
   private columnsForSettings!: WritableSignal<TableColumns>;
 
+  private tableStorageManager!: TableStorageManager;
+
   columnsToDisplay = computed(() => Object.values(this.columns()));
+  columnsToDisplay$ = toObservable(this.columnsToDisplay);
+  columnsVisibility = computed(() =>
+    Object.fromEntries(
+      Object.entries(this.columns()).map(([key, column]) => [
+        key,
+        column.default,
+      ])
+    )
+  );
+  columnsVisibility$ = toObservable(this.columnsVisibility);
 
   columnsToDisplayInSettings = computed(() =>
     Object.values(this.columnsForSettings()).filter((col) => !col.position)
@@ -37,12 +52,28 @@ export class TableColumnsManagerService {
     ...this.columnsValuesToObject(this.columnsToDisplayInSettingsLast()),
   }));
 
-  setInitialColumns(tableColumns: TableColumns) {
+  initializeManager(key: string, tableColumns: TableColumns): void {
+    this.setInitialColumns(tableColumns);
+    this.getAndSetColumnsFromStorage(key);
+  }
+
+  private setInitialColumns(tableColumns: TableColumns): void {
+    this.allColumns = signal<TableColumns>(tableColumns);
     this.columns = signal<TableColumns>(tableColumns);
     this.columnsForSettings = signal<TableColumns>(tableColumns);
   }
 
-  toggleColumnVisibility(columnName: string, visibility: boolean) {
+  private getAndSetColumnsFromStorage(key: string): void {
+    this.tableStorageManager = new TableStorageManager(
+      key,
+      window.localStorage
+    );
+    const columnsFromStorage = JSON.parse(this.tableStorageManager.getItem());
+    this.columns.set(columnsFromStorage);
+    this.columnsForSettings.set(columnsFromStorage);
+  }
+
+  toggleColumnVisibility(columnName: string, visibility: boolean): void {
     const neededColumn = this.columnsForSettings()[columnName];
     const updatedColumn = { ...neededColumn, default: visibility };
     console.log(columnName, updatedColumn);
@@ -52,7 +83,7 @@ export class TableColumnsManagerService {
     }));
   }
 
-  changeColumnWidth(columnName: string, width?: number) {
+  changeColumnWidth(columnName: string, width?: number): void {
     const neededColumn = this.columns()[columnName];
     const updatedColumn = {
       ...neededColumn,
@@ -71,7 +102,13 @@ export class TableColumnsManagerService {
     this.columnsForSettings.set(this.columnsToUpdateAfterReorder());
   }
 
-  applyColumnsChanges() {
+  resetColumnsToPrevState(): void {
+    console.log('cols', this.columns());
+    this.columnsForSettings.set(this.columns());
+  }
+
+  applyColumnsChanges(): void {
     this.columns.set(this.columnsForSettings());
+    this.tableStorageManager.setItem(JSON.stringify(this.columns()));
   }
 }
